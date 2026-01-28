@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Management Platform</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ROLE SELECTION -->
+<div id="role-selection">
+    <h2>Select Role</h2>
+    <button onclick="goToParticipant()">Participant</button>
+    <button onclick="goToOrganizer()">Organizer</button>
+</div>
+
+<!-- PARTICIPANT DASHBOARD -->
+<div id="participant-dashboard" class="dashboard">
+    <h2>Participant Dashboard</h2>
+    <button onclick="goBack()">Back</button>
+     <div id="participant-events" class="events-container"></div>
+</div>
+
+<!-- ORGANIZER DASHBOARD -->
+<div id="organizer-dashboard" class="dashboard">
+    <h2>Organizer Dashboard</h2>
+    <button onclick="goBack()">Back</button>
+    <div id="organizer-events"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
