@@ -1,132 +1,66 @@
-// Event data
-const events = [
-    { id: 'coco', name: 'Coco', about: 'Fun cultural event.', participants: [] },
-    { id: 'chess', name: 'Chess', about: 'Strategic chess competition.', participants: [] },
-    { id: 'badminton', name: 'Badminton', about: 'Exciting badminton matches.', participants: [] }
+const events=[
+ {id:'coco',name:'Badminton',about:'Fun cultural event.',participants:[]},
+ {id:'chess',name:'Chess',about:'Strategic chess competition.',participants:[]}
 ];
 
-// ROLE SELECTION
-function goToParticipant() {
-    document.getElementById('role-selection').style.display = 'none';
-    document.getElementById('participant-dashboard').style.display = 'block';
-    renderParticipantEvents();
+const $=id=>document.getElementById(id);
+const show=id=>['role-selection','participant-dashboard','organizer-dashboard']
+.forEach(d=>$(d).style.display=d===id?'block':'none');
+
+function goToParticipant(){show('participant-dashboard');renderP()}
+function goToOrganizer(){show('organizer-dashboard');renderO()}
+function goBack(){show('role-selection')}
+
+function renderP(){
+ $('participant-events').innerHTML=events.map(e=>`
+  <div class="event">
+   <h3>${e.name}</h3><p>${e.about}</p>
+   <button onclick="toggle('f-${e.id}')">Register</button>
+   <div id="f-${e.id}" style="display:none">
+    <input id="n-${e.id}" placeholder="Name">
+    <input id="a-${e.id}" type="number" placeholder="Age">
+    <input id="d-${e.id}" placeholder="Department">
+    <button onclick="reg('${e.id}')">Submit</button>
+   </div>
+  </div>`).join('');
 }
 
-function goToOrganizer() {
-    document.getElementById('role-selection').style.display = 'none';
-    document.getElementById('organizer-dashboard').style.display = 'block';
-    renderOrganizerEvents();
+const toggle=id=>$(id).style.display=
+ $(id).style.display=='block'?'none':'block';
+
+function reg(id){
+ let n=$(`n-${id}`).value,a=$(`a-${id}`).value,d=$(`d-${id}`).value;
+ if(!n||!a||!d) return alert('Please fill all fields');
+
+ let e=events.find(x=>x.id==id);
+ e.participants.push({name:n,age:a,dept:d});
+
+ alert(`${n} registered for ${e.name}`);
+ toggle(`f-${id}`);
 }
 
-// GO BACK TO ROLE SELECTION
-function goBack() {
-    document.getElementById('participant-dashboard').style.display = 'none';
-    document.getElementById('organizer-dashboard').style.display = 'none';
-    document.getElementById('role-selection').style.display = 'block';
-
-    // Clear forms and participant tables
-    events.forEach(e => {
-        const formDiv = document.getElementById(`form-${e.id}`);
-        if (formDiv) {
-            formDiv.style.display = 'none';
-            formDiv.querySelectorAll('input').forEach(input => input.value = '');
-        }
-        const participantDiv = document.getElementById(`participants-${e.id}`);
-        if (participantDiv) participantDiv.style.display = 'none';
-    });
+function renderO(){
+ $('organizer-events').innerHTML=events.map(e=>`
+  <div class="event">
+   <h3>${e.name}</h3><p>${e.about}</p>
+   <p>Count: ${e.participants.length}</p>
+   <button onclick="view('${e.id}')">View</button>
+   <div id="p-${e.id}" style="display:none"></div>
+   <button onclick="edit('${e.id}')">Edit</button>
+  </div>`).join('');
 }
 
-// PARTICIPANT DASHBOARD
-function renderParticipantEvents() {
-    const container = document.getElementById('participant-events');
-    container.innerHTML = '';
-
-    events.forEach(event => {
-        const div = document.createElement('div');
-        div.className = 'event';
-        div.innerHTML = `
-            <h3>${event.name} Event</h3>
-            <p>${event.about}</p>
-            <button onclick="showRegisterForm('${event.id}')">Register</button>
-            <div id="form-${event.id}" style="display:none;">
-                <input type="text" id="name-${event.id}" placeholder="Name" required>
-                <input type="number" id="age-${event.id}" placeholder="Age" required>
-                <input type="text" id="dept-${event.id}" placeholder="Department" required>
-                <button onclick="registerParticipant('${event.id}')">Submit</button>
-            </div>
-        `;
-        container.appendChild(div);
-    });
+function view(id){
+ let e=events.find(x=>x.id==id),div=$(`p-${id}`);
+ div.innerHTML=e.participants.length?
+ `<table><tr><th>Name</th><th>Age</th><th>Dept</th></tr>
+ ${e.participants.map(p=>`
+ <tr><td>${p.name}</td><td>${p.age}</td><td>${p.dept}</td></tr>`).join('')}
+ </table>`:'<p>No participants</p>';
+ toggle(div.id);
 }
 
-function showRegisterForm(eventId) {
-    document.getElementById(`form-${eventId}`).style.display = 'block';
-}
-
-function registerParticipant(eventId) {
-    const name = document.getElementById(`name-${eventId}`).value;
-    const age = document.getElementById(`age-${eventId}`).value;
-    const dept = document.getElementById(`dept-${eventId}`).value;
-
-    if (!name || !age || !dept) {
-        alert('Please fill all fields.');
-        return;
-    }
-
-    const event = events.find(e => e.id === eventId);
-    event.participants.push({ name, age, dept });
-    alert(`${name} registered for ${event.name}`);
-    document.getElementById(`form-${eventId}`).style.display = 'none';
-}
-
-// ORGANIZER DASHBOARD
-function renderOrganizerEvents() {
-    const container = document.getElementById('organizer-events');
-    container.innerHTML = '';
-
-    events.forEach(event => {
-        const div = document.createElement('div');
-        div.className = 'event';
-        div.innerHTML = `
-            <h3>${event.name} Event</h3>
-            <p>${event.about}</p>
-            <p>Participants Count: <span id="count-${event.id}">${event.participants.length}</span></p>
-            <button onclick="viewParticipants('${event.id}')">View Participants</button>
-            <div id="participants-${event.id}" style="display:none;"></div>
-            <button onclick="editEventAbout('${event.id}')">Edit About</button>
-        `;
-        container.appendChild(div);
-    });
-}
-
-function viewParticipants(eventId) {
-    const div = document.getElementById(`participants-${eventId}`);
-    const event = events.find(e => e.id === eventId);
-
-    if (div.style.display === 'block') {
-        div.style.display = 'none';
-        return;
-    }
-
-    if (event.participants.length === 0) {
-        div.innerHTML = '<p>No participants yet.</p>';
-    } else {
-        let html = '<table><tr><th>Name</th><th>Age</th><th>Department</th></tr>';
-        event.participants.forEach(p => {
-            html += `<tr><td>${p.name}</td><td>${p.age}</td><td>${p.dept}</td></tr>`;
-        });
-        html += '</table>';
-        div.innerHTML = html;
-    }
-
-    div.style.display = 'block';
-}
-
-function editEventAbout(eventId) {
-    const newAbout = prompt('Enter new description:');
-    if (newAbout) {
-        const event = events.find(e => e.id === eventId);
-        event.about = newAbout;
-        renderOrganizerEvents();
-    }
+function edit(id){
+ let t=prompt('New description');
+ if(t){events.find(e=>e.id==id).about=t;renderO()}
 }
